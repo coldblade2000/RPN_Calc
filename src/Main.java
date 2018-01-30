@@ -4,7 +4,8 @@ import java.util.Scanner;
 import java.util.Stack;
 
 public class Main {
-    static char[] symbols = new char[]{'+','-','+','/','^','|','v','~','s','c','t'};
+    static char[] symbols = new char[]{'+','-','*','/','^','|','v','~','s','c','t'};
+    static char[] symbols1o = new char[]{'|','v','~','s','c','t'};
     public static void main(String[] args) {
         System.out.println("Hello to the calculator program!\n");
         Scanner scan = new Scanner(System.in);
@@ -32,32 +33,45 @@ public class Main {
             String input = scan.nextLine();
             if(input.equalsIgnoreCase("quit")){
                 bContinue = false;
+                System.out.println("Goodbye!");
             }else{
                 Stack<String> terms = new Stack<String>();
                 char[] chars = input.toCharArray();
                 //ArrayList<String> terms = new ArrayList<String>();
                 StringBuilder currentTerm = new StringBuilder();
                 for (int i = 0; i < chars.length; i++) {
-
-                    if (Character.isDigit(chars[i])) {
+                    //System.out.println("i = "+i);
+                    if (Character.isDigit(chars[i])||chars[i]== '.') {
                         currentTerm.append(chars[i]);
                     } else if (chars[i] == ' ') {
-                        terms.push(currentTerm.toString());
-                        //Check this, not sure if it will empty the StringBuilder correctly.
+                        if(!currentTerm.toString().equals("")){
+                            terms.push(currentTerm.toString());
+                            System.out.println(""+terms.toString());
+                            //System.out.println("New Term: "+currentTerm.toString());
+                        }
                         currentTerm = new StringBuilder();
                     }else if (isSymbol(chars[i])){
-                        if(Arrays.asList(symbols).indexOf(chars[i])<=4){
-                            terms.push(String.valueOf(calculate(chars[i], Double.parseDouble(terms.pop()),Double.parseDouble(terms.pop()))));
+                        if(!isOneOperand(chars[i])){
+                            //System.out.println(Arrays.toString(terms.toArray()));
+                            Double result = calculate(chars[i], Double.parseDouble(terms.pop()),Double.parseDouble(terms.pop()));
+                            System.out.println("                    "+chars[i] +
+                                    "\n                    Result "+ result);
+                            terms.push(String.valueOf(result));
+                            System.out.println(""+Arrays.toString(terms.toArray()));
+
                         }else{
-                            terms.push(String.valueOf(calculate(chars[i], Double.parseDouble(terms.pop()))));
+                            Double result = calculate(chars[i], Double.parseDouble(terms.pop()));
+                            terms.push(String.valueOf(result));
+                            System.out.println("Result "+ result);
                         }
                     }
 
                 }
-                terms.push(currentTerm.toString());
-                for(String a: terms){
+                System.out.println("Final answer: "+ terms.pop());
+                /*terms.push(currentTerm.toString());
+                for(String a: terms){15 7 1 1 + - / 3 * 2 1 1 + + -
                     System.out.println(a+" ");
-                }
+                }*/
             }
         }
     }
@@ -69,8 +83,16 @@ public class Main {
         }
         return false;
     }
+    private static boolean isOneOperand(char character){
+        for(char a:symbols1o){
+            if(a == character){
+                return true;
+            }
+        }return false;
+    }
     //'+','-','+','/','^','|','v','~','s','c','t'
     private static double calculate(char operator, double op1, double op2) {
+        //System.out.println("Operator: "+operator +" Op1: "+ op1 +" Op2: "+op2);
         if (operator == symbols[0]) {  //+
             return op1 + op2;
         } else if (operator == symbols[1]) {  // -
